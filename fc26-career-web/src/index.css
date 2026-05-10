@@ -1,0 +1,57 @@
+:root {
+  --page: #f4f0e7;
+  --surface: #fffdf7;
+  --line: #d7c9af;
+  --line-strong: #bcae94;
+  --ink: #2d2515;
+  --ink-soft: #6a5a3e;
+  --accent: #0f7153;
+  --accent-strong: #165c46;
+  --sans: 'Trebuchet MS', 'Segoe UI', 'Tahoma', sans-serif;
+  --heading: 'Arial Black', 'Segoe UI', sans-serif;
+  --mono: 'Courier New', Consolas, monospace;
+
+  font-family: var(--sans);
+  line-height: 1.45;
+  color: var(--ink);
+  background: var(--page);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(1700px 740px at -2% -5%, #f8f0dd 15%, transparent 60%),
+    radial-gradient(1500px 600px at 115% 0%, #e0f3eb 10%, transparent 50%),
+    linear-gradient(180deg, #f6f2ea 0%, #f1ece1 100%);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3 {
+  color: var(--ink);
+  font-family: var(--heading);
+  letter-spacing: 0.01em;
+}
+
+h1 {
+  font-size: clamp(1.6rem, 2.3vw, 2.4rem);
+  line-height: 1.06;
+}
+
+h2 {
+  font-size: clamp(1.1rem, 1.9vw, 1.4rem);
+  line-height: 1.16;
+}
