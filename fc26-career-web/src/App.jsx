@@ -59,6 +59,7 @@ const CATEGORY_FIELDS = {
 }
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value))
+const escapeLuaString = (value) => String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"')
 
 function categoryAverage(ratings) {
   return Math.round(
@@ -93,6 +94,10 @@ function expandStatsFromCategory(ratings) {
 }
 
 function generateLuaScript(player) {
+  const safeFirstName = escapeLuaString(player.firstName)
+  const safeLastName = escapeLuaString(player.lastName)
+  const safeJerseyName = escapeLuaString(player.jerseyName)
+  const safeDivisionName = escapeLuaString(player.targetDivision)
   const statFields = expandStatsFromCategory(player.ratings)
   const rows = [
     `overallrating = "${player.overall}"`,
@@ -130,19 +135,45 @@ ${statBlock}
 
 local created_id = CreatePlayer(playerid, player_data)
 
-InsertDBTableRow("editedplayernames", {
-    playerid = string.format("%d", created_id),
-    firstname = "${player.firstName}",
-    surname = "${player.lastName}",
-    playerjerseyname = "${player.jerseyName}"
-})
-
-if ${player.addToUserTeam ? 'true' : 'false'} then
-    TransferPlayer(created_id, GetUserTeamID(), 1, ${player.wage}, ${player.contractMonths})
+if created_id == 0 then
+  Log("[PLAYER_BUILDER] CreatePlayer failed for ID: " .. playerid)
+  MessageBox("Error", "CreatePlayer failed. Check Lua log and try a different Player ID.")
+  return
 end
 
-MessageBox("Success", "Created ${player.firstName} ${player.lastName} (ID: " .. created_id .. ")")
-Log("Division plan: ${player.targetDivision}")
+if not PlayerExists(created_id) then
+  Log("[PLAYER_BUILDER] Player does not exist after CreatePlayer. ID: " .. created_id)
+  MessageBox("Error", "Player creation did not persist in database.")
+  return
+end
+
+InsertDBTableRow("editedplayernames", {
+    playerid = string.format("%d", created_id),
+  firstname = "${safeFirstName}",
+  surname = "${safeLastName}",
+  playerjerseyname = "${safeJerseyName}"
+})
+
+local before_teamid = GetTeamIdFromPlayerId(created_id)
+Log("[PLAYER_BUILDER] Created player ID: " .. created_id .. " | Initial teamid: " .. before_teamid)
+
+if ${player.addToUserTeam ? 'true' : 'false'} then
+  local user_teamid = GetUserTeamID()
+  TransferPlayer(created_id, user_teamid, 1, ${player.wage}, ${player.contractMonths}, before_teamid > 0 and before_teamid or 0)
+
+  local after_teamid = GetTeamIdFromPlayerId(created_id)
+  Log("[PLAYER_BUILDER] Transfer attempt -> user teamid: " .. user_teamid .. " | current teamid: " .. after_teamid)
+
+  if after_teamid == user_teamid then
+    MessageBox("Success", "Created ${safeFirstName} ${safeLastName} in your team (ID: " .. created_id .. ")")
+  else
+    MessageBox("Partial Success", "Player created (ID: " .. created_id .. "), but transfer did not complete. Check Free Agents and use manual transfer.")
+  end
+else
+  MessageBox("Success", "Created ${safeFirstName} ${safeLastName} (ID: " .. created_id .. "). Check Free Agents.")
+end
+
+Log("[PLAYER_BUILDER] Division plan: ${safeDivisionName}")
 `
 }
 
