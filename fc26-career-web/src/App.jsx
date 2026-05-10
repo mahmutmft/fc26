@@ -652,6 +652,38 @@ function App() {
     setSquadPlayers(generateSquadPlayers(squadConfig))
   }
 
+  function updateSquadPlayerField(index, field, value) {
+    setSquadPlayers((prev) =>
+      prev.map((player, i) => {
+        if (i !== index) return player
+
+        const nextPlayer = { ...player, [field]: value }
+
+        // Keep computed overall in sync when key inputs change.
+        if (field === 'position' || field === 'ratings') {
+          nextPlayer.overall = computeSuggestedOverall(nextPlayer.position, nextPlayer.ratings)
+        }
+
+        return nextPlayer
+      }),
+    )
+  }
+
+  function rerollSinglePlayer(index) {
+    setSquadPlayers((prev) =>
+      prev.map((player, i) => {
+        if (i !== index) return player
+
+        const ratings = buildRatingsFromTier(player.position, squadConfig.skillTier)
+        return {
+          ...player,
+          ratings,
+          overall: computeSuggestedOverall(player.position, ratings),
+        }
+      }),
+    )
+  }
+
   async function copySquadLuaScript() {
     try {
       await navigator.clipboard.writeText(squadLuaScript)
@@ -855,13 +887,80 @@ function App() {
                 <p className="hint">Generate squad preview to see all players and batch Lua.</p>
               ) : (
                 squadPlayers.map((player, idx) => (
-                  <div className="preview-row" key={`${player.firstName}-${player.lastName}-${idx}`}>
-                    <span>
-                      {idx + 1}. {player.firstName} {player.lastName}
-                    </span>
-                    <strong>
-                      {player.position} · {player.overall}
-                    </strong>
+                  <div className="preview-editor" key={`${player.firstName}-${player.lastName}-${idx}`}>
+                    <div className="preview-row">
+                      <span>
+                        {idx + 1}. {player.firstName} {player.lastName}
+                      </span>
+                      <strong>
+                        {player.position} · {player.overall}
+                      </strong>
+                    </div>
+
+                    <div className="preview-edit-grid three-col">
+                      <label>
+                        First
+                        <input
+                          value={player.firstName}
+                          onChange={(e) => updateSquadPlayerField(idx, 'firstName', e.target.value)}
+                        />
+                      </label>
+                      <label>
+                        Last
+                        <input
+                          value={player.lastName}
+                          onChange={(e) => updateSquadPlayerField(idx, 'lastName', e.target.value)}
+                        />
+                      </label>
+                      <label>
+                        Jersey
+                        <input
+                          value={player.jerseyName}
+                          onChange={(e) => updateSquadPlayerField(idx, 'jerseyName', toJerseyName(e.target.value))}
+                        />
+                      </label>
+                    </div>
+
+                    <div className="preview-edit-grid three-col">
+                      <label>
+                        Position
+                        <select
+                          value={player.position}
+                          onChange={(e) => {
+                            const nextPosition = e.target.value
+                            const nextRatings = buildRatingsFromTier(nextPosition, squadConfig.skillTier)
+                            updateSquadPlayerField(idx, 'position', nextPosition)
+                            updateSquadPlayerField(idx, 'ratings', nextRatings)
+                          }}
+                        >
+                          {Object.keys(POSITION_WEIGHTS).map((positionKey) => (
+                            <option key={positionKey} value={positionKey}>
+                              {positionKey}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label>
+                        Age
+                        <input
+                          type="number"
+                          min="16"
+                          max="40"
+                          value={player.age}
+                          onChange={(e) => updateSquadPlayerField(idx, 'age', clamp(Number(e.target.value), 16, 40))}
+                        />
+                      </label>
+                      <label>
+                        OVR
+                        <input value={player.overall} readOnly />
+                      </label>
+                    </div>
+
+                    <div className="preview-actions">
+                      <button type="button" onClick={() => rerollSinglePlayer(idx)}>
+                        Reroll Ratings
+                      </button>
+                    </div>
                   </div>
                 ))
               )}

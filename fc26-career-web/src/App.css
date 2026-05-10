@@ -124,20 +124,26 @@
 
 .player-preview-list {
   display: grid;
-  gap: 0.35rem;
-  max-height: 220px;
+  gap: 0.55rem;
+  max-height: 380px;
   overflow: auto;
   padding-right: 0.25rem;
+}
+
+.preview-editor {
+  border: 1px solid rgba(139, 156, 193, 0.25);
+  border-radius: 11px;
+  padding: 0.5rem;
+  background: rgba(16, 24, 43, 0.48);
+  display: grid;
+  gap: 0.45rem;
 }
 
 .preview-row {
   display: flex;
   justify-content: space-between;
   gap: 0.7rem;
-  border: 1px solid rgba(139, 156, 193, 0.25);
-  border-radius: 9px;
-  padding: 0.42rem 0.55rem;
-  background: rgba(16, 24, 43, 0.48);
+  padding: 0.2rem 0.1rem;
   font-size: 0.82rem;
 }
 
@@ -148,6 +154,20 @@
 .preview-row strong {
   color: var(--ink);
   font-weight: 700;
+}
+
+.preview-edit-grid {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.preview-edit-grid label {
+  font-size: 0.7rem;
+}
+
+.preview-actions {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .grid {
