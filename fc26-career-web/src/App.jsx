@@ -90,6 +90,11 @@ const NAME_POOL_LAST = [
 ]
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value))
+const parseNumberInput = (rawValue, fallback) => {
+  if (String(rawValue).trim() === '') return fallback
+  const nextValue = Number(rawValue)
+  return Number.isFinite(nextValue) ? nextValue : fallback
+}
 const escapeLuaString = (value) => String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"')
 
 function toJerseyName(lastName) {
@@ -204,6 +209,7 @@ function generateSquadPlayers(config) {
     const ratings = buildRatingsFromTier(position, config.skillTier)
 
     return {
+      slotId: idx + 1,
       firstName: `${first}${idx + 1}`,
       lastName: last,
       jerseyName: toJerseyName(`${first}${idx + 1}`),
@@ -258,11 +264,55 @@ end
 
 math.randomseed(os.time())
 local created_count = 0
+local transferred_count = 0
+local transfer_failed_count = 0
+local released_existing_count = 0
+local release_existing_failed_count = 0
+local post_cleanup_removed_count = 0
+local post_cleanup_failed_count = 0
 
 local squad_name = "${safeTeamName}"
+local user_teamid = GetUserTeamID()
+local free_agents_teamid = 111592
+
+if user_teamid == 0 then
+  MessageBox("Error", "Could not detect your user team.")
+  return
+end
+
 local players = {
 ${playerEntries}
 }
+local created_player_ids = {}
+
+local function try_transfer(playerid, from_teamid, to_teamid, wage, contract_months)
+  local ok, err = pcall(function()
+    if TransferPlayer then
+      TransferPlayer(playerid, to_teamid, 0, wage, contract_months, from_teamid, 0)
+      return
+    end
+
+    if cTransferPlayer then
+      cTransferPlayer(playerid, from_teamid, to_teamid, 0, 0, wage, contract_months)
+      return
+    end
+
+    error("No transfer API available")
+  end)
+
+  return ok, err
+end
+
+local existing_player_ids = GetUserSeniorTeamPlayerIDs()
+for existing_playerid, _ in pairs(existing_player_ids) do
+  local ok, err = try_transfer(existing_playerid, user_teamid, free_agents_teamid, 0, 12)
+  if ok then
+    released_existing_count = released_existing_count + 1
+  else
+    release_existing_failed_count = release_existing_failed_count + 1
+    Log("[SQUAD_BUILDER] Could not release existing player " .. tostring(existing_playerid) .. ": " .. tostring(err))
+  end
+end
 
 local function get_free_player_id()
     local requested_playerid = 50000 + math.random(0, 49999)
@@ -344,6 +394,15 @@ for i = 1, #players do
     if created_id ~= 0 and PlayerExists(created_id) then
         upsert_player_name(created_id, p)
         created_count = created_count + 1
+
+        local transfer_ok, transfer_err = try_transfer(created_id, free_agents_teamid, user_teamid, 500, 60)
+        if transfer_ok then
+            transferred_count = transferred_count + 1
+          created_player_ids[created_id] = true
+        else
+            transfer_failed_count = transfer_failed_count + 1
+            Log("[SQUAD_BUILDER] Transfer failed for ID " .. tostring(created_id) .. ": " .. tostring(transfer_err))
+        end
     else
         Log("[SQUAD_BUILDER] Failed to create: " .. p.first .. " " .. p.last)
     end
@@ -351,12 +410,32 @@ for i = 1, #players do
     ::continue::
 end
 
+  local function cleanup_non_generated_players()
+    local ids_after_build = GetUserSeniorTeamPlayerIDs()
+    for pid, _ in pairs(ids_after_build) do
+      if not created_player_ids[pid] then
+        local ok, err = try_transfer(pid, user_teamid, free_agents_teamid, 0, 12)
+        if ok then
+          post_cleanup_removed_count = post_cleanup_removed_count + 1
+        else
+          post_cleanup_failed_count = post_cleanup_failed_count + 1
+          Log("[SQUAD_BUILDER] Post-cleanup failed for player " .. tostring(pid) .. ": " .. tostring(err))
+        end
+      end
+    end
+  end
+
+  -- Run multiple cleanup passes to catch random/auto-added players.
+  for pass = 1, 3 do
+    cleanup_non_generated_players()
+  end
+
 if ReloadPlayersManager then
     ReloadPlayersManager()
 end
 
-MessageBox("Success", "Created " .. created_count .. " players for " .. squad_name .. " in Free Agents")
-Log("[SQUAD_BUILDER] Completed. Created: " .. created_count)
+  MessageBox("Success", "Released existing: " .. released_existing_count .. " (failed: " .. release_existing_failed_count .. ") | Created: " .. created_count .. " | Added to your club: " .. transferred_count .. " (failed: " .. transfer_failed_count .. ") | Post-cleanup removed: " .. post_cleanup_removed_count .. " (failed: " .. post_cleanup_failed_count .. ")")
+  Log("[SQUAD_BUILDER] Completed. Released existing: " .. released_existing_count .. ", release failed: " .. release_existing_failed_count .. ", created: " .. created_count .. ", transferred: " .. transferred_count .. ", transfer failed: " .. transfer_failed_count .. ", post-cleanup removed: " .. post_cleanup_removed_count .. ", post-cleanup failed: " .. post_cleanup_failed_count)
 `
 }
 
@@ -527,6 +606,71 @@ Log("[PLAYER_BUILDER] Created player in Free Agents. Final ID: " .. created_id)
 `
 }
 
+function generateReleaseAllLuaScript() {
+  return `-- Generated by FC26 Team Wipe Tool
+require 'imports/career_mode/helpers'
+require 'imports/other/helpers'
+
+if not IsInCM() then
+  MessageBox("Error", "Must be in Career Mode!")
+  return
+end
+
+local user_teamid = GetUserTeamID()
+local free_agents_teamid = 111592
+local removed_count = 0
+local failed_count = 0
+
+if user_teamid == 0 then
+  MessageBox("Error", "Could not detect your user team.")
+  return
+end
+
+local function try_release_player(playerid)
+  local ok, err = pcall(function()
+    if TransferPlayer then
+      TransferPlayer(playerid, free_agents_teamid, 0, 0, 12, user_teamid, 0)
+      return
+    end
+
+    if cTransferPlayer then
+      cTransferPlayer(playerid, user_teamid, free_agents_teamid, 0, 0, 0, 12)
+      return
+    end
+
+    error("No transfer API available")
+  end)
+
+  return ok, err
+end
+
+local function wipe_pass()
+  local player_ids = GetUserSeniorTeamPlayerIDs()
+  for playerid, _ in pairs(player_ids) do
+    local ok, err = try_release_player(playerid)
+    if ok then
+      removed_count = removed_count + 1
+    else
+      failed_count = failed_count + 1
+      Log("[TEAM_WIPE] Failed player " .. tostring(playerid) .. ": " .. tostring(err))
+    end
+  end
+end
+
+-- Multiple passes to aggressively remove auto-refilled/random players.
+for i = 1, 5 do
+  wipe_pass()
+end
+
+if ReloadPlayersManager then
+  ReloadPlayersManager()
+end
+
+MessageBox("Done", "EVERYTHING WIPE OUT attempted. Removed: " .. removed_count .. " | Failed: " .. failed_count)
+Log("[TEAM_WIPE] Completed for team " .. user_teamid .. ". Removed: " .. removed_count .. ", failed: " .. failed_count)
+`
+}
+
 function App() {
   const [screen, setScreen] = useState('home')
   const [jerseyAuto, setJerseyAuto] = useState(true)
@@ -585,6 +729,8 @@ function App() {
     () => generateMultiLuaScript(squadPlayers, squadConfig.teamName),
     [squadPlayers, squadConfig.teamName],
   )
+
+  const releaseAllLuaScript = useMemo(() => generateReleaseAllLuaScript(), [])
 
   function updateField(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -693,6 +839,15 @@ function App() {
     }
   }
 
+  async function copyReleaseAllLuaScript() {
+    try {
+      await navigator.clipboard.writeText(releaseAllLuaScript)
+      window.alert('Team wipe Lua script copied to clipboard!')
+    } catch {
+      window.alert('Could not copy automatically. Select and copy manually.')
+    }
+  }
+
   if (screen === 'home') {
     return (
       <main className="layout">
@@ -713,11 +868,49 @@ function App() {
 
           <article className="card home-card muted">
             <h2>Build Full Squad</h2>
-            <p>Starting XI + bench generation with role balance and smart depth rules.</p>
+            <p>Releases your current squad first, then creates and adds your generated players to your club.</p>
             <button type="button" onClick={() => setScreen('squad')}>
               Open Multi Squad Builder
             </button>
           </article>
+        </section>
+
+        <section className="card home-card muted">
+          <h2>Wipe My Team</h2>
+          <p>Standalone script that tries to remove every senior player from your user club. Full wipe mode.</p>
+          <button type="button" onClick={() => setScreen('release')}>
+            Open Full Team Wipe
+          </button>
+        </section>
+      </main>
+    )
+  }
+
+  if (screen === 'release') {
+    return (
+      <main className="layout">
+        <header className="hero">
+          <p className="eyebrow">FC26 Career Mode Tool</p>
+          <h1>Full Team Wipe</h1>
+          <p>Use this if you want to clear your club first with a dedicated script.</p>
+          <div className="hero-actions">
+            <button type="button" onClick={() => setScreen('home')}>
+              Back To Home
+            </button>
+          </div>
+        </header>
+
+        <section className="card form-card">
+          <h2>Wipe Script</h2>
+          <p className="hint">Warning: destructive action. Backup your save before running this script.</p>
+
+          <div className="lua-header">
+            <h3>Generated Lua</h3>
+            <button type="button" onClick={copyReleaseAllLuaScript}>
+              Copy
+            </button>
+          </div>
+          <textarea readOnly value={releaseAllLuaScript} rows={24} />
         </section>
       </main>
     )
@@ -779,7 +972,8 @@ function App() {
                   min="16"
                   max="35"
                   value={squadConfig.ageMin}
-                  onChange={(e) => updateSquadField('ageMin', clamp(Number(e.target.value), 16, 35))}
+                  onChange={(e) => updateSquadField('ageMin', parseNumberInput(e.target.value, squadConfig.ageMin))}
+                  onBlur={(e) => updateSquadField('ageMin', clamp(parseNumberInput(e.target.value, squadConfig.ageMin), 16, 35))}
                 />
               </label>
               <label>
@@ -789,7 +983,8 @@ function App() {
                   min="16"
                   max="35"
                   value={squadConfig.ageMax}
-                  onChange={(e) => updateSquadField('ageMax', clamp(Number(e.target.value), 16, 35))}
+                  onChange={(e) => updateSquadField('ageMax', parseNumberInput(e.target.value, squadConfig.ageMax))}
+                  onBlur={(e) => updateSquadField('ageMax', clamp(parseNumberInput(e.target.value, squadConfig.ageMax), 16, 35))}
                 />
               </label>
             </div>
@@ -887,7 +1082,7 @@ function App() {
                 <p className="hint">Generate squad preview to see all players and batch Lua.</p>
               ) : (
                 squadPlayers.map((player, idx) => (
-                  <div className="preview-editor" key={`${player.firstName}-${player.lastName}-${idx}`}>
+                  <div className="preview-editor" key={player.slotId}>
                     <div className="preview-row">
                       <span>
                         {idx + 1}. {player.firstName} {player.lastName}
@@ -947,7 +1142,8 @@ function App() {
                           min="16"
                           max="40"
                           value={player.age}
-                          onChange={(e) => updateSquadPlayerField(idx, 'age', clamp(Number(e.target.value), 16, 40))}
+                          onChange={(e) => updateSquadPlayerField(idx, 'age', parseNumberInput(e.target.value, player.age))}
+                          onBlur={(e) => updateSquadPlayerField(idx, 'age', clamp(parseNumberInput(e.target.value, player.age), 16, 40))}
                         />
                       </label>
                       <label>
@@ -1032,7 +1228,8 @@ function App() {
                 min="15"
                 max="40"
                 value={form.age}
-                onChange={(e) => updateField('age', clamp(Number(e.target.value), 15, 40))}
+                onChange={(e) => updateField('age', parseNumberInput(e.target.value, form.age))}
+                onBlur={(e) => updateField('age', clamp(parseNumberInput(e.target.value, form.age), 15, 40))}
               />
             </label>
             <label>
@@ -1065,7 +1262,8 @@ function App() {
                 min="150"
                 max="210"
                 value={form.height}
-                onChange={(e) => updateField('height', clamp(Number(e.target.value), 150, 210))}
+                onChange={(e) => updateField('height', parseNumberInput(e.target.value, form.height))}
+                onBlur={(e) => updateField('height', clamp(parseNumberInput(e.target.value, form.height), 150, 210))}
               />
             </label>
             <label>
@@ -1075,7 +1273,8 @@ function App() {
                 min="50"
                 max="120"
                 value={form.weight}
-                onChange={(e) => updateField('weight', clamp(Number(e.target.value), 50, 120))}
+                onChange={(e) => updateField('weight', parseNumberInput(e.target.value, form.weight))}
+                onBlur={(e) => updateField('weight', clamp(parseNumberInput(e.target.value, form.weight), 50, 120))}
               />
             </label>
           </div>
@@ -1164,10 +1363,6 @@ function App() {
           <textarea readOnly value={luaScript} rows={22} />
         </aside>
       </section>
-
-      <footer className="next-step">
-        <p>Next: multi-player squad builder for you and friends with one-click batch Lua export.</p>
-      </footer>
     </main>
   )
 }

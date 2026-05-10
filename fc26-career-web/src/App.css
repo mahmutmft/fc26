@@ -76,6 +76,10 @@
   gap: 0.88rem;
 }
 
+section.card.depth-helper {
+  margin-top: 30px;
+}
+
 .depth-helper p {
   margin: 0;
 }
