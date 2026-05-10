@@ -104,6 +104,52 @@
   font-size: 0.88rem;
 }
 
+.checkbox-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  padding: 0.52rem 0.58rem;
+  background: var(--field-bg);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.checkbox-line input {
+  width: 18px;
+  height: 18px;
+}
+
+.player-preview-list {
+  display: grid;
+  gap: 0.35rem;
+  max-height: 220px;
+  overflow: auto;
+  padding-right: 0.25rem;
+}
+
+.preview-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.7rem;
+  border: 1px solid rgba(139, 156, 193, 0.25);
+  border-radius: 9px;
+  padding: 0.42rem 0.55rem;
+  background: rgba(16, 24, 43, 0.48);
+  font-size: 0.82rem;
+}
+
+.preview-row span {
+  color: var(--ink-soft);
+}
+
+.preview-row strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+
 .grid {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
