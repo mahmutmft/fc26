@@ -13,6 +13,13 @@
   background: var(--panel-bg);
   backdrop-filter: blur(10px);
   box-shadow: 0 14px 38px rgba(5, 8, 18, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(123, 161, 234, 0.5);
+  box-shadow: 0 18px 42px rgba(6, 12, 25, 0.45);
 }
 
 .hero {
@@ -41,6 +48,62 @@
 
 .hero-actions {
   margin-top: 0.92rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.density-toggle {
+  display: inline-flex;
+  gap: 0.35rem;
+  background: rgba(11, 20, 39, 0.68);
+  border: 1px solid rgba(126, 146, 187, 0.32);
+  border-radius: 999px;
+  padding: 0.25rem;
+}
+
+.density-toggle button {
+  border-color: transparent;
+  background: transparent;
+  color: #b9c8e3;
+  padding: 0.34rem 0.72rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+}
+
+.density-toggle button.is-active {
+  color: #052015;
+  background: linear-gradient(180deg, #6df3bf 0%, #49c99b 100%);
+  border-color: #59cf9f;
+}
+
+.home-hero {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(120, 151, 219, 0.45);
+  background:
+    radial-gradient(circle at 88% 16%, rgba(100, 184, 255, 0.2), transparent 34%),
+    radial-gradient(circle at 12% 88%, rgba(122, 247, 185, 0.14), transparent 42%),
+    linear-gradient(140deg, rgba(23, 35, 64, 0.95), rgba(17, 26, 46, 0.9));
+}
+
+.home-highlights {
+  margin-top: 0.95rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.home-highlights span {
+  border: 1px solid rgba(129, 167, 240, 0.36);
+  background: rgba(13, 22, 42, 0.6);
+  color: #d5e6ff;
+  padding: 0.34rem 0.64rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  font-weight: 700;
 }
 
 .home-grid {
@@ -54,6 +117,43 @@
   display: grid;
   gap: 0.88rem;
   align-content: start;
+}
+
+.home-grid-modern {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.home-mode-card {
+  position: relative;
+  border-color: rgba(124, 140, 173, 0.42);
+  background: linear-gradient(165deg, rgba(29, 41, 67, 0.8), rgba(14, 22, 40, 0.84));
+}
+
+.home-mode-primary {
+  border-color: rgba(94, 239, 178, 0.5);
+  box-shadow: 0 14px 32px rgba(2, 14, 11, 0.42);
+}
+
+.mode-kicker {
+  margin: 0;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #8ddfbd;
+  font-weight: 800;
+}
+
+.home-mode-card h2 {
+  margin: 0;
+  font-size: 1.22rem;
+}
+
+.home-mode-card p {
+  line-height: 1.5;
+}
+
+.home-mode-card button {
+  margin-top: 0.2rem;
 }
 
 .home-card p {
@@ -141,6 +241,13 @@ section.card.depth-helper {
   background: rgba(16, 24, 43, 0.48);
   display: grid;
   gap: 0.56rem;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.preview-editor:hover {
+  transform: translateY(-1px);
+  border-color: rgba(127, 162, 236, 0.45);
+  background: rgba(19, 28, 50, 0.62);
 }
 
 .preview-row {
@@ -171,7 +278,27 @@ section.card.depth-helper {
 
 .preview-actions {
   display: flex;
+  gap: 0.6rem;
   justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.squad-editor-toolbar {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0.2rem 0 0.1rem;
+}
+
+.squad-search-field {
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: 0.78rem;
+}
+
+.squad-search-meta {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
 }
 
 .grid {
@@ -196,6 +323,39 @@ section.card.depth-helper {
   margin-bottom: 1rem;
   display: grid;
   gap: 0.78rem;
+}
+
+.density-compact {
+  gap: 1rem;
+}
+
+.density-compact .hero {
+  padding: 1.15rem 1.25rem;
+}
+
+.density-compact .form-card,
+.density-compact .summary-card,
+.density-compact .home-card,
+.density-compact .depth-helper {
+  padding: 0.96rem;
+}
+
+.density-compact .row {
+  margin-bottom: 0.72rem;
+  gap: 0.58rem;
+}
+
+.density-compact .player-preview-list {
+  gap: 0.54rem;
+  max-height: 420px;
+}
+
+.density-compact .preview-editor {
+  padding: 0.54rem;
+}
+
+.density-compact textarea {
+  min-height: 250px;
 }
 
 .field-dark input {
@@ -427,6 +587,16 @@ button:active {
   transform: translateY(1px);
 }
 
+button.btn-danger {
+  border-color: #d63031;
+  color: #fff9f9;
+  background: linear-gradient(180deg, #e84c3d 0%, #c6372b 100%);
+}
+
+button.btn-danger:hover {
+  filter: brightness(1.1);
+}
+
 textarea {
   width: 100%;
   resize: vertical;
@@ -458,6 +628,10 @@ textarea {
 
   .home-grid,
   .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-grid-modern {
     grid-template-columns: 1fr;
   }
 

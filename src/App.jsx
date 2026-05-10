@@ -208,6 +208,11 @@ function generateSquadPlayers(config) {
     const weight = position === 'GK' ? randomInt(78, 92) : randomInt(64, 86)
     const ratings = buildRatingsFromTier(position, config.skillTier)
 
+    // Assign priority tier: first 11 = XI, next batch = Subs, rest = Reserves
+    let priority = 'Reserves'
+    if (idx < 11) priority = 'XI'
+    else if (idx < 18) priority = 'Subs'
+
     return {
       slotId: idx + 1,
       firstName: `${first}${idx + 1}`,
@@ -220,6 +225,7 @@ function generateSquadPlayers(config) {
       weight,
       ratings,
       overall: computeSuggestedOverall(position, ratings),
+      priority,
     }
   })
 }
@@ -231,7 +237,15 @@ function generateMultiLuaScript(players, teamName) {
 
   const safeTeamName = escapeLuaString(teamName || 'Custom Squad')
 
-  const playerEntries = players
+  // Sort players by priority: XI first, then Subs, then Reserves
+  const priorityOrder = { 'XI': 0, 'Subs': 1, 'Reserves': 2 }
+  const sortedPlayers = [...players].sort((a, b) => {
+    const aPriority = priorityOrder[a.priority] ?? 2
+    const bPriority = priorityOrder[b.priority] ?? 2
+    return aPriority - bPriority
+  })
+
+  const playerEntries = sortedPlayers
     .map((player) => {
       const statFields = expandStatsFromCategory(player.ratings, player.position)
       const statsLua = Object.entries(statFields)
@@ -673,7 +687,9 @@ Log("[TEAM_WIPE] Completed for team " .. user_teamid .. ". Removed: " .. removed
 
 function App() {
   const [screen, setScreen] = useState('home')
+  const [densityMode, setDensityMode] = useState('comfortable')
   const [jerseyAuto, setJerseyAuto] = useState(true)
+  const [squadSearch, setSquadSearch] = useState('')
   const [squadConfig, setSquadConfig] = useState({
     teamName: 'Road To Glory FC',
     skillTier: 'casual',
@@ -730,7 +746,19 @@ function App() {
     [squadPlayers, squadConfig.teamName],
   )
 
+  const filteredSquadPlayers = useMemo(() => {
+    const query = squadSearch.trim().toLowerCase()
+    const withIndex = squadPlayers.map((player, index) => ({ player, index }))
+    if (!query) return withIndex
+
+    return withIndex.filter(({ player }) => {
+      const haystack = `${player.firstName} ${player.lastName} ${player.jerseyName} ${player.position} ${player.overall}`.toLowerCase()
+      return haystack.includes(query)
+    })
+  }, [squadPlayers, squadSearch])
+
   const releaseAllLuaScript = useMemo(() => generateReleaseAllLuaScript(), [])
+  const layoutClassName = `layout ${densityMode === 'compact' ? 'density-compact' : 'density-comfortable'}`
 
   function updateField(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -805,6 +833,11 @@ function App() {
 
         const nextPlayer = { ...player, [field]: value }
 
+        // Auto-sync jersey from first name
+        if (field === 'firstName') {
+          nextPlayer.jerseyName = toJerseyName(value)
+        }
+
         // Keep computed overall in sync when key inputs change.
         if (field === 'position' || field === 'ratings') {
           nextPlayer.overall = computeSuggestedOverall(nextPlayer.position, nextPlayer.ratings)
@@ -830,6 +863,10 @@ function App() {
     )
   }
 
+  function removeSquadPlayer(index) {
+    setSquadPlayers((prev) => prev.filter((_, i) => i !== index))
+  }
+
   async function copySquadLuaScript() {
     try {
       await navigator.clipboard.writeText(squadLuaScript)
@@ -848,39 +885,71 @@ function App() {
     }
   }
 
+  function renderDensityToggle() {
+    return (
+      <div className="density-toggle" role="group" aria-label="Density mode">
+        <button
+          type="button"
+          className={densityMode === 'comfortable' ? 'is-active' : ''}
+          onClick={() => setDensityMode('comfortable')}
+        >
+          Comfortable
+        </button>
+        <button
+          type="button"
+          className={densityMode === 'compact' ? 'is-active' : ''}
+          onClick={() => setDensityMode('compact')}
+        >
+          Compact
+        </button>
+      </div>
+    )
+  }
+
   if (screen === 'home') {
     return (
-      <main className="layout">
-        <header className="hero">
-          <p className="eyebrow">FC26 Career Mode Tool</p>
-          <h1>Choose Your Builder Mode</h1>
-          <p>Start with one custom player now, then move to full squad generation in the next step.</p>
+      <main className={layoutClassName}>
+        <header className="hero home-hero">
+          <p className="eyebrow">FC26 Career Mode Studio</p>
+          <h1>Build Your Club Identity In Minutes</h1>
+          <p>Create custom players, rebuild your full squad, or wipe your team with purpose-built Lua scripts from one clean control center.</p>
+
+          <div className="home-highlights" role="list" aria-label="Tool highlights">
+            <span role="listitem">Fast Lua export</span>
+            <span role="listitem">Career mode safe checks</span>
+            <span role="listitem">One-click copy</span>
+          </div>
+
+          <div className="hero-actions">{renderDensityToggle()}</div>
         </header>
 
-        <section className="home-grid">
-          <article className="card home-card">
+        <section className="home-grid home-grid-modern">
+          <article className="card home-card home-mode-card">
+            <p className="mode-kicker">Single Player</p>
             <h2>Create One Player</h2>
-            <p>Fast profile setup + smart ratings + Lua export for Free Agents.</p>
+            <p>Build one custom profile with smart ratings and instantly export Lua.</p>
             <button type="button" onClick={() => setScreen('single')}>
-              Open Single Player Builder
+              Open Single Builder
             </button>
           </article>
 
-          <article className="card home-card muted">
+          <article className="card home-card home-mode-card home-mode-primary muted">
+            <p className="mode-kicker">Full Rebuild</p>
             <h2>Build Full Squad</h2>
-            <p>Releases your current squad first, then creates and adds your generated players to your club.</p>
+            <p>Generates a whole squad, removes old players, and places your new squad in your club.</p>
             <button type="button" onClick={() => setScreen('squad')}>
-              Open Multi Squad Builder
+              Open Multi Squad
             </button>
           </article>
-        </section>
 
-        <section className="card home-card muted">
-          <h2>Wipe My Team</h2>
-          <p>Standalone script that tries to remove every senior player from your user club. Full wipe mode.</p>
-          <button type="button" onClick={() => setScreen('release')}>
-            Open Full Team Wipe
-          </button>
+          <article className="card home-card home-mode-card muted">
+            <p className="mode-kicker">Reset Tool</p>
+            <h2>Wipe My Team</h2>
+            <p>Standalone wipe script that aggressively clears your senior squad from the current club.</p>
+            <button type="button" onClick={() => setScreen('release')}>
+              Open Team Wipe
+            </button>
+          </article>
         </section>
       </main>
     )
@@ -888,7 +957,7 @@ function App() {
 
   if (screen === 'release') {
     return (
-      <main className="layout">
+      <main className={layoutClassName}>
         <header className="hero">
           <p className="eyebrow">FC26 Career Mode Tool</p>
           <h1>Full Team Wipe</h1>
@@ -897,6 +966,7 @@ function App() {
             <button type="button" onClick={() => setScreen('home')}>
               Back To Home
             </button>
+            {renderDensityToggle()}
           </div>
         </header>
 
@@ -921,7 +991,7 @@ function App() {
     const totalPlayers = buildSquadPositions(squadConfig).length
 
     return (
-      <main className="layout">
+      <main className={layoutClassName}>
         <header className="hero">
           <p className="eyebrow">FC26 Career Mode Tool</p>
           <h1>Multi Squad Builder</h1>
@@ -930,6 +1000,7 @@ function App() {
             <button type="button" onClick={() => setScreen('home')}>
               Back To Home
             </button>
+            {renderDensityToggle()}
           </div>
         </header>
 
@@ -1077,15 +1148,32 @@ function App() {
               </div>
             </div>
 
+            <div className="squad-editor-toolbar">
+              <label className="squad-search-field">
+                Search in generated players
+                <input
+                  type="text"
+                  value={squadSearch}
+                  placeholder="Name, jersey, position, OVR..."
+                  onChange={(e) => setSquadSearch(e.target.value)}
+                />
+              </label>
+              <p className="squad-search-meta">
+                Showing {filteredSquadPlayers.length} of {squadPlayers.length}
+              </p>
+            </div>
+
             <div className="player-preview-list">
               {squadPlayers.length === 0 ? (
                 <p className="hint">Generate squad preview to see all players and batch Lua.</p>
+              ) : filteredSquadPlayers.length === 0 ? (
+                <p className="hint">No players match this filter.</p>
               ) : (
-                squadPlayers.map((player, idx) => (
+                filteredSquadPlayers.map(({ player, index }, visibleIdx) => (
                   <div className="preview-editor" key={player.slotId}>
                     <div className="preview-row">
                       <span>
-                        {idx + 1}. {player.firstName} {player.lastName}
+                        {visibleIdx + 1}. {player.firstName} {player.lastName}
                       </span>
                       <strong>
                         {player.position} · {player.overall}
@@ -1097,21 +1185,21 @@ function App() {
                         First
                         <input
                           value={player.firstName}
-                          onChange={(e) => updateSquadPlayerField(idx, 'firstName', e.target.value)}
+                          onChange={(e) => updateSquadPlayerField(index, 'firstName', e.target.value)}
                         />
                       </label>
                       <label>
                         Last
                         <input
                           value={player.lastName}
-                          onChange={(e) => updateSquadPlayerField(idx, 'lastName', e.target.value)}
+                          onChange={(e) => updateSquadPlayerField(index, 'lastName', e.target.value)}
                         />
                       </label>
                       <label>
                         Jersey
                         <input
                           value={player.jerseyName}
-                          onChange={(e) => updateSquadPlayerField(idx, 'jerseyName', toJerseyName(e.target.value))}
+                          onChange={(e) => updateSquadPlayerField(index, 'jerseyName', toJerseyName(e.target.value))}
                         />
                       </label>
                     </div>
@@ -1124,8 +1212,8 @@ function App() {
                           onChange={(e) => {
                             const nextPosition = e.target.value
                             const nextRatings = buildRatingsFromTier(nextPosition, squadConfig.skillTier)
-                            updateSquadPlayerField(idx, 'position', nextPosition)
-                            updateSquadPlayerField(idx, 'ratings', nextRatings)
+                            updateSquadPlayerField(index, 'position', nextPosition)
+                            updateSquadPlayerField(index, 'ratings', nextRatings)
                           }}
                         >
                           {Object.keys(POSITION_WEIGHTS).map((positionKey) => (
@@ -1142,8 +1230,8 @@ function App() {
                           min="16"
                           max="40"
                           value={player.age}
-                          onChange={(e) => updateSquadPlayerField(idx, 'age', parseNumberInput(e.target.value, player.age))}
-                          onBlur={(e) => updateSquadPlayerField(idx, 'age', clamp(parseNumberInput(e.target.value, player.age), 16, 40))}
+                          onChange={(e) => updateSquadPlayerField(index, 'age', parseNumberInput(e.target.value, player.age))}
+                          onBlur={(e) => updateSquadPlayerField(index, 'age', clamp(parseNumberInput(e.target.value, player.age), 16, 40))}
                         />
                       </label>
                       <label>
@@ -1152,9 +1240,28 @@ function App() {
                       </label>
                     </div>
 
+                    <div className="preview-edit-grid three-col">
+                      <label>
+                        Priority
+                        <select
+                          value={player.priority || 'Reserves'}
+                          onChange={(e) => updateSquadPlayerField(index, 'priority', e.target.value)}
+                        >
+                          <option value="XI">Starting XI</option>
+                          <option value="Subs">Subs</option>
+                          <option value="Reserves">Reserves</option>
+                        </select>
+                      </label>
+                      <div></div>
+                      <div></div>
+                    </div>
+
                     <div className="preview-actions">
-                      <button type="button" onClick={() => rerollSinglePlayer(idx)}>
+                      <button type="button" onClick={() => rerollSinglePlayer(index)}>
                         Reroll Ratings
+                      </button>
+                      <button type="button" className="btn-danger" onClick={() => removeSquadPlayer(index)}>
+                        Remove Player
                       </button>
                     </div>
                   </div>
@@ -1176,7 +1283,7 @@ function App() {
   }
 
   return (
-    <main className="layout">
+    <main className={layoutClassName}>
       <header className="hero">
         <p className="eyebrow">FC26 Career Mode Tool</p>
         <h1>Player Builder + Lua Generator</h1>
@@ -1185,6 +1292,7 @@ function App() {
           <button type="button" onClick={() => setScreen('home')}>
             Back To Home
           </button>
+          {renderDensityToggle()}
         </div>
       </header>
 
