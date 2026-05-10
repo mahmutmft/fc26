@@ -1,9 +1,8 @@
-
 .layout {
-  width: min(1280px, 100% - 2.2rem);
-  margin: 1.2rem auto 2rem;
+  width: min(1320px, 100% - 2.4rem);
+  margin: 1.4rem auto 2.3rem;
   display: grid;
-  gap: 1.1rem;
+  gap: 1.25rem;
 }
 
 .hero,
@@ -17,7 +16,7 @@
 }
 
 .hero {
-  padding: 1.2rem 1.3rem;
+  padding: 1.45rem 1.5rem;
   background: linear-gradient(140deg, rgba(22, 31, 53, 0.92), rgba(18, 25, 45, 0.84));
 }
 
@@ -31,28 +30,29 @@
 }
 
 .hero h1 {
-  margin: 0.35rem 0 0.5rem;
+  margin: 0.42rem 0 0.62rem;
 }
 
 .hero p {
   margin: 0;
-  max-width: 76ch;
+  max-width: 84ch;
+  color: #b9c8e1;
 }
 
 .hero-actions {
-  margin-top: 0.75rem;
+  margin-top: 0.92rem;
 }
 
 .home-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 1.15rem;
 }
 
 .home-card {
-  padding: 1rem;
+  padding: 1.2rem;
   display: grid;
-  gap: 0.75rem;
+  gap: 0.88rem;
   align-content: start;
 }
 
@@ -71,9 +71,9 @@
 }
 
 .depth-helper {
-  padding: 1rem;
+  padding: 1.2rem;
   display: grid;
-  gap: 0.75rem;
+  gap: 0.88rem;
 }
 
 .depth-helper p {
@@ -83,14 +83,14 @@
 .depth-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
+  gap: 0.9rem;
 }
 
 .depth-grid > div {
   border: 1px solid rgba(139, 156, 193, 0.3);
   border-radius: 12px;
   background: rgba(16, 24, 43, 0.55);
-  padding: 0.7rem;
+  padding: 0.85rem;
 }
 
 .depth-grid h3 {
@@ -111,7 +111,7 @@
   gap: 0.6rem;
   border: 1px solid var(--line-strong);
   border-radius: 10px;
-  padding: 0.52rem 0.58rem;
+  padding: 0.62rem 0.68rem;
   background: var(--field-bg);
   text-transform: none;
   letter-spacing: normal;
@@ -124,19 +124,19 @@
 
 .player-preview-list {
   display: grid;
-  gap: 0.55rem;
-  max-height: 380px;
+  gap: 0.72rem;
+  max-height: 480px;
   overflow: auto;
-  padding-right: 0.25rem;
+  padding-right: 0.35rem;
 }
 
 .preview-editor {
   border: 1px solid rgba(139, 156, 193, 0.25);
   border-radius: 11px;
-  padding: 0.5rem;
+  padding: 0.68rem;
   background: rgba(16, 24, 43, 0.48);
   display: grid;
-  gap: 0.45rem;
+  gap: 0.56rem;
 }
 
 .preview-row {
@@ -158,7 +158,7 @@
 
 .preview-edit-grid {
   display: grid;
-  gap: 0.45rem;
+  gap: 0.56rem;
 }
 
 .preview-edit-grid label {
@@ -172,25 +172,26 @@
 
 .grid {
   display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 1rem;
+  grid-template-columns: minmax(0, 1.12fr) minmax(350px, 0.88fr);
+  gap: 1.2rem;
+  align-items: start;
 }
 
 .form-card {
-  padding: 1rem 1rem 1.1rem;
+  padding: 1.2rem 1.2rem 1.25rem;
 }
 
 .form-card h2,
 .summary-card h2,
 .form-card h3,
 .summary-card h3 {
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.92rem;
 }
 
 .row {
-  margin-bottom: 0.85rem;
+  margin-bottom: 1rem;
   display: grid;
-  gap: 0.65rem;
+  gap: 0.78rem;
 }
 
 .field-dark input {
@@ -203,12 +204,12 @@
 }
 
 .three-col {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(150px, 1fr));
 }
 
 label {
   display: grid;
-  gap: 0.34rem;
+  gap: 0.42rem;
   font-size: 0.82rem;
   color: var(--ink-soft);
   text-transform: uppercase;
@@ -228,7 +229,7 @@ select,
 textarea {
   border: 1px solid var(--line-strong);
   border-radius: 10px;
-  padding: 0.56rem 0.62rem;
+  padding: 0.62rem 0.68rem;
   background: var(--field-bg);
   color: var(--ink);
 }
@@ -257,9 +258,9 @@ button:focus {
 
 .slider-group {
   display: grid;
-  gap: 0.65rem;
-  margin-bottom: 0.8rem;
-  padding-top: 0.1rem;
+  gap: 0.8rem;
+  margin-bottom: 0.95rem;
+  padding-top: 0.2rem;
 }
 
 .slider-group label {
@@ -332,16 +333,18 @@ button:focus {
 .tier-row {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 0.75rem;
+  gap: 0.9rem;
   align-items: end;
-  margin-bottom: 0.9rem;
+  margin-bottom: 1.05rem;
 }
 
 .summary-card {
-  padding: 1rem;
+  padding: 1.2rem;
   display: grid;
   align-content: start;
-  gap: 0.85rem;
+  gap: 1rem;
+  position: sticky;
+  top: 1rem;
 }
 
 .summary-header {
@@ -363,7 +366,7 @@ button:focus {
 .pill-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.62rem;
+  gap: 0.74rem;
 }
 
 .two-pills {
@@ -374,9 +377,9 @@ button:focus {
   background: linear-gradient(180deg, rgba(46, 57, 84, 0.95) 0%, rgba(29, 38, 61, 0.95) 100%);
   border: 1px solid rgba(135, 152, 187, 0.3);
   border-radius: 12px;
-  padding: 0.62rem 0.66rem;
+  padding: 0.74rem 0.72rem;
   display: grid;
-  gap: 0.28rem;
+  gap: 0.34rem;
 }
 
 .pill span {
@@ -423,7 +426,7 @@ button:active {
 textarea {
   width: 100%;
   resize: vertical;
-  min-height: 280px;
+  min-height: 300px;
   font-family: var(--mono);
   font-size: 0.76rem;
   line-height: 1.5;
@@ -434,7 +437,7 @@ textarea {
 
 .next-step {
   border-style: solid;
-  padding: 0.8rem 1rem;
+  padding: 1rem 1.15rem;
   color: #b9c8e3;
   background: linear-gradient(120deg, rgba(46, 33, 83, 0.55), rgba(16, 54, 44, 0.5));
 }
@@ -444,9 +447,19 @@ textarea {
 }
 
 @media (max-width: 1024px) {
+  .layout {
+    width: min(100%, 100% - 1.4rem);
+    margin: 0.9rem auto 1.4rem;
+  }
+
   .home-grid,
   .grid {
     grid-template-columns: 1fr;
+  }
+
+  .summary-card {
+    position: static;
+    top: auto;
   }
 
   .three-col {
