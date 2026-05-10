@@ -609,12 +609,6 @@ if not IsInCM() then
 end
 
 local user_team_id = GetUserTeamID()
-local player_ids = GetUserSeniorTeamPlayerIDs(user_team_id)
-
-if not player_ids or #player_ids == 0 then
-    MessageBox("Error", "No players found in user team!")
-    return
-end
 
 function update_contracts_lock()
     local result = {}
@@ -627,25 +621,31 @@ function update_contracts_lock()
     local current_record = career_playercontract_table:GetFirstRecord()
 
     local playerid = 0
+    local teamid = 0
     local contract_status = 0
     local is_loaned_in = false
     local contractvaliduntil = 0
     local locked_count = 0
     
     while current_record > 0 do
-        playerid = career_playercontract_table:GetRecordFieldValue(current_record, "playerid")
-        contract_status = career_playercontract_table:GetRecordFieldValue(current_record, "contract_status")
-        is_loaned_in = (contract_status == 1) or (contract_status == 3) or (contract_status == 5)
+        teamid = career_playercontract_table:GetRecordFieldValue(current_record, "teamid")
+        
+        -- Only process players on the user's team
+        if teamid == user_team_id then
+            playerid = career_playercontract_table:GetRecordFieldValue(current_record, "playerid")
+            contract_status = career_playercontract_table:GetRecordFieldValue(current_record, "contract_status")
+            is_loaned_in = (contract_status == 1) or (contract_status == 3) or (contract_status == 5)
 
-        -- Only lock players who are not loaned in
-        if not is_loaned_in then
-            career_playercontract_table:SetRecordFieldValue(current_record, "contract_date", int_current_date)
-            career_playercontract_table:SetRecordFieldValue(current_record, "duration_months", lock_duration_months)
+            -- Only lock players who are not loaned in
+            if not is_loaned_in then
+                career_playercontract_table:SetRecordFieldValue(current_record, "contract_date", int_current_date)
+                career_playercontract_table:SetRecordFieldValue(current_record, "duration_months", lock_duration_months)
 
-            contractvaliduntil = currentdate.year + math.floor(lock_duration_months / 12)
+                contractvaliduntil = currentdate.year + math.floor(lock_duration_months / 12)
 
-            result[playerid] = contractvaliduntil
-            locked_count = locked_count + 1
+                result[playerid] = contractvaliduntil
+                locked_count = locked_count + 1
+            end
         end
 
         current_record = career_playercontract_table:GetNextValidRecord()
