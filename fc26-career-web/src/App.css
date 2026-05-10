@@ -39,6 +39,71 @@
   max-width: 76ch;
 }
 
+.hero-actions {
+  margin-top: 0.75rem;
+}
+
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.home-card {
+  padding: 1rem;
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+}
+
+.home-card p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.home-card.muted {
+  opacity: 0.95;
+}
+
+.home-card button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.depth-helper {
+  padding: 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.depth-helper p {
+  margin: 0;
+}
+
+.depth-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.depth-grid > div {
+  border: 1px solid rgba(139, 156, 193, 0.3);
+  border-radius: 12px;
+  background: rgba(16, 24, 43, 0.55);
+  padding: 0.7rem;
+}
+
+.depth-grid h3 {
+  margin: 0 0 0.45rem;
+  font-size: 0.97rem;
+}
+
+.depth-grid p {
+  color: var(--ink-soft);
+  margin: 0 0 0.2rem;
+  font-size: 0.88rem;
+}
+
 .grid {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
@@ -128,10 +193,11 @@ button:focus {
   display: grid;
   gap: 0.65rem;
   margin-bottom: 0.8rem;
+  padding-top: 0.1rem;
 }
 
 .slider-group label {
-  grid-template-columns: 86px 1fr 40px;
+  grid-template-columns: 92px 1fr 44px;
   align-items: center;
   text-transform: none;
   letter-spacing: normal;
@@ -147,6 +213,7 @@ button:focus {
   text-align: right;
   color: var(--accent);
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .slider-group input[type='range'] {
@@ -154,25 +221,32 @@ button:focus {
   height: 6px;
   border-radius: 999px;
   border: 0;
-  background: linear-gradient(to right, #5e2ab4 0%, #5e2ab4 50%, #2d3550 50%, #2d3550 100%);
+  background: linear-gradient(
+    to right,
+    #6c2dcf 0%,
+    #6c2dcf var(--pct, 50%),
+    #2d3550 var(--pct, 50%),
+    #2d3550 100%
+  );
+  transition: background 0.16s ease;
 }
 
 .slider-group input[type='range']::-webkit-slider-thumb {
   appearance: none;
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
   border-radius: 50%;
-  border: 3px solid #0a1020;
-  background: #60f6b8;
-  box-shadow: 0 0 0 4px rgba(96, 246, 184, 0.22);
+  border: 2px solid #0a1020;
+  background: #65f2bc;
+  box-shadow: 0 0 0 3px rgba(101, 242, 188, 0.2);
 }
 
 .slider-group input[type='range']::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
   border-radius: 50%;
-  border: 3px solid #0a1020;
-  background: #60f6b8;
+  border: 2px solid #0a1020;
+  background: #65f2bc;
 }
 
 .inline-actions {
@@ -304,6 +378,7 @@ textarea {
 }
 
 @media (max-width: 1024px) {
+  .home-grid,
   .grid {
     grid-template-columns: 1fr;
   }
@@ -327,6 +402,7 @@ textarea {
 
   .two-col,
   .three-col,
+  .depth-grid,
   .pill-row {
     grid-template-columns: 1fr;
   }
