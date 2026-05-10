@@ -168,18 +168,72 @@ if not PlayerExists(created_id) then
   return
 end
 
-local name_row = InsertDBTableRow("editedplayernames", {
-    playerid = string.format("%d", created_id),
-  firstname = "${safeFirstName}",
-  surname = "${safeLastName}",
-  commonname = "",
-  playerjerseyname = "${safeJerseyName}"
-})
+-- Upsert name row in editedplayernames to ensure visible custom name.
+local edited_names_rows = GetDBTableRows("editedplayernames")
+local existing_name_row = nil
+for i = 1, #edited_names_rows do
+  local row = edited_names_rows[i]
+  if tonumber(row.playerid) == created_id then
+    existing_name_row = row
+    break
+  end
+end
 
-if not name_row then
-  Log("[PLAYER_BUILDER] Could not insert editedplayernames row for ID: " .. created_id)
+if existing_name_row then
+  EditDBTableField("editedplayernames", existing_name_row, "firstname", "${safeFirstName}")
+  EditDBTableField("editedplayernames", existing_name_row, "surname", "${safeLastName}")
+  EditDBTableField("editedplayernames", existing_name_row, "playerjerseyname", "${safeJerseyName}")
+  Log("[PLAYER_BUILDER] Name row updated for ID: " .. created_id)
 else
-  Log("[PLAYER_BUILDER] Name row inserted for ID: " .. created_id)
+  local name_row = InsertDBTableRow("editedplayernames", {
+    playerid = string.format("%d", created_id),
+    firstname = "${safeFirstName}",
+    surname = "${safeLastName}",
+    commonname = "",
+    playerjerseyname = "${safeJerseyName}"
+  })
+
+  if not name_row then
+    Log("[PLAYER_BUILDER] Could not insert editedplayernames row for ID: " .. created_id)
+  else
+    Log("[PLAYER_BUILDER] Name row inserted for ID: " .. created_id)
+  end
+end
+
+-- Patch players row directly as fallback for saves that ignore editedplayernames until reload.
+local players_rows = GetDBTableRows("players")
+local player_row = nil
+for i = 1, #players_rows do
+  local row = players_rows[i]
+  if tonumber(row.playerid) == created_id then
+    player_row = row
+    break
+  end
+end
+
+if player_row then
+  if player_row.usercaneditname ~= nil then
+    EditDBTableField("players", player_row, "usercaneditname", "1")
+  end
+  if player_row.firstnameid ~= nil then
+    EditDBTableField("players", player_row, "firstnameid", "0")
+  end
+  if player_row.surnameid ~= nil then
+    EditDBTableField("players", player_row, "surnameid", "0")
+  end
+  if player_row.commonnameid ~= nil then
+    EditDBTableField("players", player_row, "commonnameid", "0")
+  end
+  if player_row.knownas ~= nil then
+    EditDBTableField("players", player_row, "knownas", "0")
+  end
+  Log("[PLAYER_BUILDER] Players row patched for naming fallback. ID: " .. created_id)
+else
+  Log("[PLAYER_BUILDER] Could not find players row for ID: " .. created_id)
+end
+
+if ReloadPlayersManager then
+  ReloadPlayersManager()
 end
 
 local before_teamid = GetTeamIdFromPlayerId(created_id)
