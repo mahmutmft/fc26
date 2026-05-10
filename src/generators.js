@@ -597,3 +597,67 @@ Log("[CONTRACT_EXTENSION] Extended all player contracts by ${months} months (${y
 MessageBox("Done", "All player contracts extended by ${months} months")
 `
 }
+
+export function generatePlayerLockLuaScript() {
+  return `-- Lock All Players to Club (Prevent Transfers)
+require 'imports/career_mode/helpers'
+require 'imports/other/helpers'
+
+if not IsInCM() then
+    MessageBox("Error", "Must be in Career Mode!")
+    return
+end
+
+local user_team_id = GetUserTeamID()
+local player_ids = GetUserSeniorTeamPlayerIDs(user_team_id)
+
+if not player_ids or #player_ids == 0 then
+    MessageBox("Error", "No players found in user team!")
+    return
+end
+
+function update_contracts_lock()
+    local result = {}
+    local lock_duration_months = 240 -- 20 years to effectively lock players in club
+    
+    local currentdate = GetCurrentDate()
+    local int_current_date = currentdate:ToInt()
+
+    local career_playercontract_table = LE.db:GetTable("career_playercontract")
+    local current_record = career_playercontract_table:GetFirstRecord()
+
+    local playerid = 0
+    local contract_status = 0
+    local is_loaned_in = false
+    local contractvaliduntil = 0
+    local locked_count = 0
+    
+    while current_record > 0 do
+        playerid = career_playercontract_table:GetRecordFieldValue(current_record, "playerid")
+        contract_status = career_playercontract_table:GetRecordFieldValue(current_record, "contract_status")
+        is_loaned_in = (contract_status == 1) or (contract_status == 3) or (contract_status == 5)
+
+        -- Only lock players who are not loaned in
+        if not is_loaned_in then
+            career_playercontract_table:SetRecordFieldValue(current_record, "contract_date", int_current_date)
+            career_playercontract_table:SetRecordFieldValue(current_record, "duration_months", lock_duration_months)
+
+            contractvaliduntil = currentdate.year + math.floor(lock_duration_months / 12)
+
+            result[playerid] = contractvaliduntil
+            locked_count = locked_count + 1
+        end
+
+        current_record = career_playercontract_table:GetNextValidRecord()
+    end
+
+    return result, locked_count
+end
+
+local locked_players, count = update_contracts_lock()
+update_contractvaliduntil(locked_players)
+
+Log("[PLAYER_LOCK] Locked \${count} players to club with 20-year contracts")
+MessageBox("Done", "\${count} players locked to club and cannot be transferred")
+`
+}

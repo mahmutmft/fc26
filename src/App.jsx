@@ -35,6 +35,7 @@ import {
   generateReleaseAllLuaScript,
   generateHappinessLuaScript,
   generateContractExtensionLuaScript,
+  generatePlayerLockLuaScript,
 } from './generators'
 
 function App() {
@@ -126,6 +127,7 @@ function App() {
   const releaseAllLuaScript = useMemo(() => generateReleaseAllLuaScript(), [])
   const happinessLuaScript = useMemo(() => generateHappinessLuaScript(happinessConfig), [happinessConfig])
   const contractLuaScript = useMemo(() => generateContractExtensionLuaScript(contractConfig), [contractConfig])
+  const lockLuaScript = useMemo(() => generatePlayerLockLuaScript(), [])
   const layoutClassName = `layout ${densityMode === 'compact' ? 'density-compact' : 'density-comfortable'}`
 
   // ==================== HANDLERS ====================
@@ -295,6 +297,15 @@ function App() {
     try {
       await navigator.clipboard.writeText(contractLuaScript)
       window.alert('Contract extension Lua script copied to clipboard!')
+    } catch {
+      window.alert('Could not copy automatically. Select and copy manually.')
+    }
+  }
+
+  async function copyLockLuaScript() {
+    try {
+      await navigator.clipboard.writeText(lockLuaScript)
+      window.alert('Player lock Lua script copied to clipboard!')
     } catch {
       window.alert('Could not copy automatically. Select and copy manually.')
     }
@@ -504,6 +515,15 @@ function App() {
             <p>Extend all player contracts at once to keep your squad intact for years to come.</p>
             <button type="button" onClick={() => setScreen('contract')}>
               Open Contract Manager
+            </button>
+          </article>
+
+          <article className="card home-card home-mode-card muted">
+            <p className="mode-kicker">Lock-in</p>
+            <h2>Lock Players to Club</h2>
+            <p>Prevent all players from being transferred by locking them with 20-year contracts. Keep your squad forever.</p>
+            <button type="button" onClick={() => setScreen('lock')}>
+              Open Player Lock
             </button>
           </article>
         </section>
@@ -1154,6 +1174,69 @@ function App() {
               </button>
             </div>
             <textarea readOnly value={contractLuaScript} rows={24} />
+          </aside>
+        </section>
+      </main>
+    )
+  }
+
+  // ==================== RENDER LOCK ====================
+  if (screen === 'lock') {
+    return (
+      <main className={layoutClassName}>
+        <header className="hero">
+          <p className="eyebrow">FC26 Career Mode Tool</p>
+          <h1>Lock Players to Club</h1>
+          <p>Prevent all your players from leaving the club by locking them with 20-year contracts. Complete control over your squad.</p>
+          <div className="hero-actions">
+            <button type="button" onClick={() => setScreen('home')}>
+              Back To Home
+            </button>
+            {renderDensityToggle()}
+          </div>
+        </header>
+
+        <section className="grid">
+          <article className="card form-card">
+            <h2>Player Lock Settings</h2>
+
+            <p className="hint">
+              This will lock all players in your club by setting their contracts to 20 years. Players cannot be transferred while locked. 
+              Loaned-in players are excluded from this operation.
+            </p>
+
+            <div className="home-grid">
+              <button type="button" onClick={copyLockLuaScript}>
+                Copy Lock Lua Script
+              </button>
+              <button 
+                type="button" 
+                onClick={() => {
+                  window.alert('Go to Career Mode and paste the Lua script in the Live Editor to lock all your players.')
+                }}
+              >
+                Need Help?
+              </button>
+            </div>
+          </article>
+
+          <aside className="card summary-card">
+            <h2>Generated Script</h2>
+            <p className="hint">Use this script in Career Mode to lock all players with 20-year contracts.</p>
+            <div className="pill-row one-pill">
+              <div className="pill">
+                <span>Contract Duration</span>
+                <strong>20 Years</strong>
+              </div>
+            </div>
+
+            <div className="lua-header">
+              <h3>Lock Lua</h3>
+              <button type="button" onClick={copyLockLuaScript}>
+                Copy
+              </button>
+            </div>
+            <textarea readOnly value={lockLuaScript} rows={24} />
           </aside>
         </section>
       </main>
