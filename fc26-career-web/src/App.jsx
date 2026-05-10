@@ -18,18 +18,18 @@ const POSITION_WEIGHTS = {
 
 const POSITION_TO_CODE = {
   GK: 0,
-  ST: 0,
-  CF: 1,
-  CAM: 2,
-  CM: 3,
-  CDM: 4,
-  LM: 5,
-  RM: 6,
+  RB: 3,
+  CB: 5,
   LB: 7,
-  RB: 8,
-  CB: 9,
-  LW: 10,
-  RW: 11,
+  CDM: 10,
+  RM: 12,
+  CM: 14,
+  LM: 16,
+  CAM: 18,
+  RW: 23,
+  CF: 21,
+  ST: 25,
+  LW: 27,
 }
 
 const STARTING_TEMPLATES = {
@@ -103,9 +103,14 @@ function generateLuaScript(player) {
     `overallrating = "${player.overall}"`,
     `potential = "${player.potential}"`,
     `preferredposition1 = "${POSITION_TO_CODE[player.position] ?? POSITION_TO_CODE.CM}"`,
+    `preferredposition2 = "-1"`,
+    `preferredposition3 = "-1"`,
+    `preferredposition4 = "-1"`,
     `nationality = "${player.nationality}"`,
     `height = "${player.height}"`,
     `weight = "${player.weight}"`,
+    `gender = "0"`,
+    `usercaneditname = "1"`,
   ]
 
   Object.entries(statFields).forEach(([field, value]) => {
@@ -163,12 +168,19 @@ if not PlayerExists(created_id) then
   return
 end
 
-InsertDBTableRow("editedplayernames", {
+local name_row = InsertDBTableRow("editedplayernames", {
     playerid = string.format("%d", created_id),
   firstname = "${safeFirstName}",
   surname = "${safeLastName}",
+  commonname = "",
   playerjerseyname = "${safeJerseyName}"
 })
+
+if not name_row then
+  Log("[PLAYER_BUILDER] Could not insert editedplayernames row for ID: " .. created_id)
+else
+  Log("[PLAYER_BUILDER] Name row inserted for ID: " .. created_id)
+end
 
 local before_teamid = GetTeamIdFromPlayerId(created_id)
 Log("[PLAYER_BUILDER] Created player ID: " .. created_id .. " | Requested ID: " .. requested_playerid .. " | Initial teamid: " .. before_teamid)
