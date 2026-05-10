@@ -1,15 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
 :root {
-  --page: #f4f0e7;
-  --surface: #fffdf7;
-  --line: #d7c9af;
-  --line-strong: #bcae94;
-  --ink: #2d2515;
-  --ink-soft: #6a5a3e;
-  --accent: #0f7153;
-  --accent-strong: #165c46;
-  --sans: 'Trebuchet MS', 'Segoe UI', 'Tahoma', sans-serif;
-  --heading: 'Arial Black', 'Segoe UI', sans-serif;
-  --mono: 'Courier New', Consolas, monospace;
+  --page: #0b1326;
+  --panel-bg: rgba(23, 31, 51, 0.66);
+  --surface: #171f33;
+  --field-bg: #151d31;
+  --line: rgba(123, 138, 171, 0.35);
+  --line-strong: rgba(139, 156, 193, 0.45);
+  --ink: #e6eeff;
+  --ink-soft: #9caecc;
+  --accent: #4edea3;
+  --accent-strong: #69f0bd;
+  --sans: 'Inter', 'Segoe UI', sans-serif;
+  --heading: 'Inter', 'Segoe UI', sans-serif;
+  --mono: 'JetBrains Mono', Consolas, monospace;
 
   font-family: var(--sans);
   line-height: 1.45;
@@ -29,9 +33,9 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(1700px 740px at -2% -5%, #f8f0dd 15%, transparent 60%),
-    radial-gradient(1500px 600px at 115% 0%, #e0f3eb 10%, transparent 50%),
-    linear-gradient(180deg, #f6f2ea 0%, #f1ece1 100%);
+    radial-gradient(1200px 680px at -8% -12%, rgba(53, 28, 102, 0.36) 0%, transparent 60%),
+    radial-gradient(980px 620px at 112% 0%, rgba(19, 114, 86, 0.25) 0%, transparent 58%),
+    linear-gradient(180deg, #0b1326 0%, #0a1020 100%);
 }
 
 #root {
@@ -43,7 +47,7 @@ h2,
 h3 {
   color: var(--ink);
   font-family: var(--heading);
-  letter-spacing: 0.01em;
+  letter-spacing: -0.01em;
 }
 
 h1 {
