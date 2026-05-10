@@ -661,3 +661,66 @@ Log("[PLAYER_LOCK] Locked \${count} players to club with 20-year contracts")
 MessageBox("Done", "\${count} players locked to club and cannot be transferred")
 `
 }
+
+export function generateBlockTransfersLuaScript() {
+  return `-- Block All Transfer Offers (Ban Players from Transfer Market)
+require 'imports/career_mode/helpers'
+require 'imports/other/helpers'
+
+if not IsInCM() then
+    MessageBox("Error", "Must be in Career Mode!")
+    return
+end
+
+TRANSFER_BAN_MANAGER = require 'imports/core/managers/transfer_ban_manager'
+
+local user_team_id = GetUserTeamID()
+
+function ban_players_from_transfer()
+    local result = {}
+    local ban_until_date = 20991231  -- Ban until Dec 31, 2099 (effectively forever)
+    local blocked_count = 0
+    
+    local career_playercontract_table = LE.db:GetTable("career_playercontract")
+    local current_record = career_playercontract_table:GetFirstRecord()
+
+    local playerid = 0
+    local teamid = 0
+    local contract_status = 0
+    local is_loaned_in = false
+    
+    while current_record > 0 do
+        teamid = career_playercontract_table:GetRecordFieldValue(current_record, "teamid")
+        
+        -- Only process players on the user's team
+        if teamid == user_team_id then
+            playerid = career_playercontract_table:GetRecordFieldValue(current_record, "playerid")
+            contract_status = career_playercontract_table:GetRecordFieldValue(current_record, "contract_status")
+            is_loaned_in = (contract_status == 1) or (contract_status == 3) or (contract_status == 5)
+
+            -- Only ban players who are not loaned in
+            if not is_loaned_in then
+                result[playerid] = ban_until_date
+                blocked_count = blocked_count + 1
+            end
+        end
+
+        current_record = career_playercontract_table:GetNextValidRecord()
+    end
+
+    return result, blocked_count
+end
+
+local ban_manager = TRANSFER_BAN_MANAGER:new()
+local players_to_ban, count = ban_players_from_transfer()
+
+for playerid, ban_date in pairs(players_to_ban) do
+    ban_manager:AddPlayer(playerid, ban_date)
+end
+
+ban_manager:Save()
+
+Log("[TRANSFER_BLOCK] Banned \${count} players from transfer market")
+MessageBox("Done", "\${count} players blocked from transfer offers")
+`
+}

@@ -36,6 +36,7 @@ import {
   generateHappinessLuaScript,
   generateContractExtensionLuaScript,
   generatePlayerLockLuaScript,
+  generateBlockTransfersLuaScript,
 } from './generators'
 
 function App() {
@@ -128,6 +129,7 @@ function App() {
   const happinessLuaScript = useMemo(() => generateHappinessLuaScript(happinessConfig), [happinessConfig])
   const contractLuaScript = useMemo(() => generateContractExtensionLuaScript(contractConfig), [contractConfig])
   const lockLuaScript = useMemo(() => generatePlayerLockLuaScript(), [])
+  const blockTransfersLuaScript = useMemo(() => generateBlockTransfersLuaScript(), [])
   const layoutClassName = `layout ${densityMode === 'compact' ? 'density-compact' : 'density-comfortable'}`
 
   // ==================== HANDLERS ====================
@@ -306,6 +308,15 @@ function App() {
     try {
       await navigator.clipboard.writeText(lockLuaScript)
       window.alert('Player lock Lua script copied to clipboard!')
+    } catch {
+      window.alert('Could not copy automatically. Select and copy manually.')
+    }
+  }
+
+  async function copyBlockTransfersLuaScript() {
+    try {
+      await navigator.clipboard.writeText(blockTransfersLuaScript)
+      window.alert('Block transfers Lua script copied to clipboard!')
     } catch {
       window.alert('Could not copy automatically. Select and copy manually.')
     }
@@ -524,6 +535,15 @@ function App() {
             <p>Prevent all players from being transferred by locking them with 20-year contracts. Keep your squad forever.</p>
             <button type="button" onClick={() => setScreen('lock')}>
               Open Player Lock
+            </button>
+          </article>
+
+          <article className="card home-card home-mode-card muted">
+            <p className="mode-kicker">No Offers</p>
+            <h2>Block Transfer Offers</h2>
+            <p>Ban all players from the transfer market so they never get approached with transfer offers.</p>
+            <button type="button" onClick={() => setScreen('block-transfers')}>
+              Open Transfer Blocker
             </button>
           </article>
         </section>
@@ -1237,6 +1257,69 @@ function App() {
               </button>
             </div>
             <textarea readOnly value={lockLuaScript} rows={24} />
+          </aside>
+        </section>
+      </main>
+    )
+  }
+
+  // ==================== RENDER BLOCK TRANSFERS ====================
+  if (screen === 'block-transfers') {
+    return (
+      <main className={layoutClassName}>
+        <header className="hero">
+          <p className="eyebrow">FC26 Career Mode Tool</p>
+          <h1>Block Transfer Offers</h1>
+          <p>Ban all your players from the transfer market so they never receive offers from other clubs.</p>
+          <div className="hero-actions">
+            <button type="button" onClick={() => setScreen('home')}>
+              Back To Home
+            </button>
+            {renderDensityToggle()}
+          </div>
+        </header>
+
+        <section className="grid">
+          <article className="card form-card">
+            <h2>Transfer Block Settings</h2>
+
+            <p className="hint">
+              This will ban all players in your club from the transfer market until 2099. 
+              Players cannot receive offers while banned. Loaned-in players are excluded from this operation.
+            </p>
+
+            <div className="home-grid">
+              <button type="button" onClick={copyBlockTransfersLuaScript}>
+                Copy Block Transfers Lua
+              </button>
+              <button 
+                type="button" 
+                onClick={() => {
+                  window.alert('Go to Career Mode and paste the Lua script in the Live Editor to block all transfer offers.')
+                }}
+              >
+                Need Help?
+              </button>
+            </div>
+          </article>
+
+          <aside className="card summary-card">
+            <h2>Generated Script</h2>
+            <p className="hint">Use this script in Career Mode to ban all players from receiving transfer offers.</p>
+            <div className="pill-row one-pill">
+              <div className="pill">
+                <span>Ban Until</span>
+                <strong>2099</strong>
+              </div>
+            </div>
+
+            <div className="lua-header">
+              <h3>Block Transfers Lua</h3>
+              <button type="button" onClick={copyBlockTransfersLuaScript}>
+                Copy
+              </button>
+            </div>
+            <textarea readOnly value={blockTransfersLuaScript} rows={24} />
           </aside>
         </section>
       </main>
