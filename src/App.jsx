@@ -742,6 +742,12 @@ function App() {
                 Copy
               </button>
             </div>
+            <p className="hint" style={{ marginTop: '10px', marginBottom: '10px' }}>
+              💡 <strong>Requires FC26 Live Editor:</strong>{' '}
+              <a href="https://www.patreon.com/collection/1744907" target="_blank" rel="noopener noreferrer" style={{ color: '#4a9eff', textDecoration: 'underline' }}>
+                Get it from Patreon
+              </a>
+            </p>
             <textarea readOnly value={luaScript} rows={22} />
           </aside>
         </section>
@@ -937,6 +943,12 @@ function App() {
                     Copy
                   </button>
                 </div>
+                <p className="hint" style={{ marginTop: '10px', marginBottom: '10px' }}>
+                  💡 <strong>Requires FC26 Live Editor:</strong>{' '}
+                  <a href="https://www.patreon.com/collection/1744907" target="_blank" rel="noopener noreferrer" style={{ color: '#4a9eff', textDecoration: 'underline' }}>
+                    Get it from Patreon
+                  </a>
+                </p>
                 <textarea readOnly value={squadLuaScript} rows={24} />
               </>
             )}
@@ -981,6 +993,12 @@ function App() {
                 Copy
               </button>
             </div>
+            <p className="hint" style={{ marginTop: '10px', marginBottom: '10px' }}>
+              💡 <strong>Requires FC26 Live Editor:</strong>{' '}
+              <a href="https://www.patreon.com/collection/1744907" target="_blank" rel="noopener noreferrer" style={{ color: '#4a9eff', textDecoration: 'underline' }}>
+                Get it from Patreon
+              </a>
+            </p>
             <textarea readOnly value={releaseAllLuaScript} rows={24} />
           </aside>
         </section>
@@ -1106,6 +1124,12 @@ function App() {
                 Copy
               </button>
             </div>
+            <p className="hint" style={{ marginTop: '10px', marginBottom: '10px' }}>
+              💡 <strong>Requires FC26 Live Editor:</strong>{' '}
+              <a href="https://www.patreon.com/collection/1744907" target="_blank" rel="noopener noreferrer" style={{ color: '#4a9eff', textDecoration: 'underline' }}>
+                Get it from Patreon
+              </a>
+            </p>
             <textarea readOnly value={happinessLuaScript} rows={24} />
           </aside>
         </section>
@@ -1193,6 +1217,12 @@ function App() {
                 Copy
               </button>
             </div>
+            <p className="hint" style={{ marginTop: '10px', marginBottom: '10px' }}>
+              💡 <strong>Requires FC26 Live Editor:</strong>{' '}
+              <a href="https://www.patreon.com/collection/1744907" target="_blank" rel="noopener noreferrer" style={{ color: '#4a9eff', textDecoration: 'underline' }}>
+                Get it from Patreon
+              </a>
+            </p>
             <textarea readOnly value={contractLuaScript} rows={24} />
           </aside>
         </section>
@@ -1256,6 +1286,12 @@ function App() {
                 Copy
               </button>
             </div>
+            <p className="hint" style={{ marginTop: '10px', marginBottom: '10px' }}>
+              💡 <strong>Requires FC26 Live Editor:</strong>{' '}
+              <a href="https://www.patreon.com/collection/1744907" target="_blank" rel="noopener noreferrer" style={{ color: '#4a9eff', textDecoration: 'underline' }}>
+                Get it from Patreon
+              </a>
+            </p>
             <textarea readOnly value={lockLuaScript} rows={24} />
           </aside>
         </section>
@@ -1319,6 +1355,12 @@ function App() {
                 Copy
               </button>
             </div>
+            <p className="hint" style={{ marginTop: '10px', marginBottom: '10px' }}>
+              💡 <strong>Requires FC26 Live Editor:</strong>{' '}
+              <a href="https://www.patreon.com/collection/1744907" target="_blank" rel="noopener noreferrer" style={{ color: '#4a9eff', textDecoration: 'underline' }}>
+                Get it from Patreon
+              </a>
+            </p>
             <textarea readOnly value={blockTransfersLuaScript} rows={24} />
           </aside>
         </section>
