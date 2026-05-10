@@ -123,10 +123,26 @@ if not IsInCM() then
 end
 
 local playerid = ${player.playerId}
+local requested_playerid = playerid
 
 if PlayerExists(playerid) then
-    MessageBox("Error", "Player ID already exists: " .. playerid)
+  local found_free_id = false
+  for i = 1, 5000 do
+    local candidate = requested_playerid + i
+    if not PlayerExists(candidate) then
+      playerid = candidate
+      found_free_id = true
+      break
+    end
+  end
+
+  if not found_free_id then
+    Log("[PLAYER_BUILDER] Could not find free Player ID after: " .. requested_playerid)
+    MessageBox("Error", "Player ID already exists and no free ID was found in next 5000 values.")
     return
+  end
+
+  Log("[PLAYER_BUILDER] Requested Player ID " .. requested_playerid .. " already existed. Using " .. playerid)
 end
 
 local player_data = {
@@ -136,7 +152,7 @@ ${statBlock}
 local created_id = CreatePlayer(playerid, player_data)
 
 if created_id == 0 then
-  Log("[PLAYER_BUILDER] CreatePlayer failed for ID: " .. playerid)
+  Log("[PLAYER_BUILDER] CreatePlayer failed for ID: " .. playerid .. " (requested: " .. requested_playerid .. ")")
   MessageBox("Error", "CreatePlayer failed. Check Lua log and try a different Player ID.")
   return
 end
@@ -155,7 +171,7 @@ InsertDBTableRow("editedplayernames", {
 })
 
 local before_teamid = GetTeamIdFromPlayerId(created_id)
-Log("[PLAYER_BUILDER] Created player ID: " .. created_id .. " | Initial teamid: " .. before_teamid)
+Log("[PLAYER_BUILDER] Created player ID: " .. created_id .. " | Requested ID: " .. requested_playerid .. " | Initial teamid: " .. before_teamid)
 
 if ${player.addToUserTeam ? 'true' : 'false'} then
   local user_teamid = GetUserTeamID()
