@@ -485,6 +485,7 @@ function App() {
 
         <section className="home-grid-modern">
           <article className="card home-card home-mode-card">
+            <span className="mode-num" aria-hidden="true">01</span>
             <p className="mode-kicker">One Player</p>
             <h2>Single Player Builder</h2>
             <p>Build a single custom player with fine-tuned attributes, then export the generated Lua script.</p>
@@ -494,6 +495,7 @@ function App() {
           </article>
 
           <article className="card home-card home-mode-card">
+            <span className="mode-num" aria-hidden="true">02</span>
             <p className="mode-kicker">Full Squad</p>
             <h2>Multi-Squad Generator</h2>
             <p>Generate balanced 24-player squads with customizable skill tiers, nations, and positions. Perfect for quick team building.</p>
@@ -503,6 +505,7 @@ function App() {
           </article>
 
           <article className="card home-card home-mode-card">
+            <span className="mode-num" aria-hidden="true">03</span>
             <p className="mode-kicker">Club Clean</p>
             <h2>Wipe Your Club</h2>
             <p>Release all players from your club in one go with a multi-pass cleanup script.</p>
@@ -512,6 +515,7 @@ function App() {
           </article>
 
           <article className="card home-card home-mode-card">
+            <span className="mode-num" aria-hidden="true">04</span>
             <p className="mode-kicker">Squad Mood</p>
             <h2>Keep Players Happy</h2>
             <p>Generate Lua that boosts morale, form, and sharpness so players stay happy and less likely to complain.</p>
@@ -521,6 +525,7 @@ function App() {
           </article>
 
           <article className="card home-card home-mode-card muted">
+            <span className="mode-num" aria-hidden="true">05</span>
             <p className="mode-kicker">Retention</p>
             <h2>Extend Contracts</h2>
             <p>Extend all player contracts at once to keep your squad intact for years to come.</p>
@@ -530,6 +535,7 @@ function App() {
           </article>
 
           <article className="card home-card home-mode-card muted">
+            <span className="mode-num" aria-hidden="true">06</span>
             <p className="mode-kicker">Lock-in</p>
             <h2>Lock Players to Club</h2>
             <p>Prevent all players from being transferred by locking them with 20-year contracts. Keep your squad forever.</p>
@@ -539,6 +545,7 @@ function App() {
           </article>
 
           <article className="card home-card home-mode-card muted">
+            <span className="mode-num" aria-hidden="true">07</span>
             <p className="mode-kicker">No Offers</p>
             <h2>Block Transfer Offers</h2>
             <p>Ban all players from the transfer market so they never get approached with transfer offers.</p>

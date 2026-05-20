@@ -1,31 +1,39 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-  --page: #0b1326;
-  --panel-bg: rgba(23, 31, 51, 0.66);
-  --surface: #171f33;
-  --field-bg: #151d31;
-  --line: rgba(123, 138, 171, 0.35);
-  --line-strong: rgba(139, 156, 193, 0.45);
-  --ink: #e6eeff;
-  --ink-soft: #9caecc;
-  --accent: #4edea3;
-  --accent-strong: #69f0bd;
-  --sans: 'Inter', 'Segoe UI', sans-serif;
-  --heading: 'Inter', 'Segoe UI', sans-serif;
-  --mono: 'JetBrains Mono', Consolas, monospace;
+  --page: #07090f;
+  --panel: rgba(11, 17, 30, 0.96);
+  --surface: #0b1120;
+  --field: #06101c;
+  --border: rgba(255, 255, 255, 0.07);
+  --border-hi: rgba(255, 255, 255, 0.15);
+  --ink: #edf2ff;
+  --ink-2: #7a8fad;
+  --ink-3: #3d4f68;
+  --green: #00e87a;
+  --green-dim: rgba(0, 232, 122, 0.1);
+  --blue: #3b82f6;
+  --gold: #f59e0b;
+  --red: #ef4444;
+  --purple: #8b5cf6;
+  --orange: #f97316;
+  --cyan: #06b6d4;
+  --sans: 'DM Sans', system-ui, sans-serif;
+  --head: 'Rajdhani', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
 
+  color-scheme: dark;
   font-family: var(--sans);
-  line-height: 1.45;
+  font-size: 15px;
+  line-height: 1.5;
   color: var(--ink);
   background: var(--page);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-* {
+*, *::before, *::after {
   box-sizing: border-box;
 }
 
@@ -33,29 +41,40 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(1200px 680px at -8% -12%, rgba(53, 28, 102, 0.36) 0%, transparent 60%),
-    radial-gradient(980px 620px at 112% 0%, rgba(19, 114, 86, 0.25) 0%, transparent 58%),
-    linear-gradient(180deg, #0b1326 0%, #0a1020 100%);
+    radial-gradient(ellipse 110% 50% at 50% -5%, rgba(0, 200, 100, 0.11) 0%, transparent 62%),
+    radial-gradient(ellipse 60% 50% at 95% 90%, rgba(59, 130, 246, 0.09) 0%, transparent 55%),
+    var(--page);
+  background-attachment: fixed;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 232, 122, 0.016) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 232, 122, 0.016) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
 }
 
 #root {
+  position: relative;
+  z-index: 1;
   min-height: 100vh;
 }
 
-h1,
-h2,
-h3 {
+h1, h2, h3 {
+  font-family: var(--head);
+  font-weight: 700;
   color: var(--ink);
-  font-family: var(--heading);
-  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.05;
+  margin: 0;
 }
 
-h1 {
-  font-size: clamp(1.6rem, 2.3vw, 2.4rem);
-  line-height: 1.06;
-}
-
-h2 {
-  font-size: clamp(1.1rem, 1.9vw, 1.4rem);
-  line-height: 1.16;
-}
+h1 { font-size: clamp(2rem, 3.5vw, 3.2rem); }
+h2 { font-size: clamp(1.1rem, 2vw, 1.45rem); }
+h3 { font-size: 0.85rem; letter-spacing: 0.1em; }
