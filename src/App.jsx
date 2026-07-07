@@ -375,7 +375,7 @@ function App() {
         return {
           slotId: `imported-${idx}`,
           firstName: extract(block, 'first').trim(),
-          lastName: extract(block, 'first').trim(),
+          lastName: extract(block, 'last').trim(),
           jerseyName: toJerseyName(extract(block, 'jersey').trim() || extract(block, 'first').trim()),
           position,
           nationality: Number(extract(block, 'nationality')) || 14,

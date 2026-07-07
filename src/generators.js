@@ -191,7 +191,7 @@ export function generateMultiLuaScript(players, teamName) {
 
       return `    {
         first = "${escapeLuaString(player.firstName)}",
-        last = "${escapeLuaString(player.firstName)}",
+        last = "${escapeLuaString(player.lastName)}",
         jersey = "${escapeLuaString(player.jerseyName)}",
         position = ${POSITION_TO_CODE[player.position] ?? POSITION_TO_CODE.CM},
         nationality = ${Number(player.nationality)},
