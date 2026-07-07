@@ -665,6 +665,21 @@ textarea:focus {
   text-overflow: ellipsis;
 }
 
+.name-inputs {
+  display: flex;
+  gap: 0.35rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.name-input {
+  min-width: 0;
+  width: 100%;
+  padding: 0.32rem 0.5rem;
+  font-size: 0.8rem;
+  border-radius: 6px;
+}
+
 .preview-content span {
   font-size: 0.78rem;
   color: var(--ink-2);

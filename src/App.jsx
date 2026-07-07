@@ -913,7 +913,24 @@ function App() {
                 {filteredSquadPlayers.map(({ player, index }) => (
                   <div key={index} className="preview-editor">
                     <div className="preview-content">
-                      <strong>{player.firstName}</strong>
+                      <span className="name-inputs">
+                        <input
+                          type="text"
+                          className="name-input"
+                          value={player.firstName}
+                          onChange={(e) => updateSquadPlayerField(index, 'firstName', e.target.value)}
+                          placeholder="First"
+                          aria-label={`Player ${index + 1} first name`}
+                        />
+                        <input
+                          type="text"
+                          className="name-input"
+                          value={player.lastName}
+                          onChange={(e) => updateSquadPlayerField(index, 'lastName', e.target.value)}
+                          placeholder="Last"
+                          aria-label={`Player ${index + 1} last name`}
+                        />
+                      </span>
                       <span>{player.position}</span>
                       <span>OVR {player.overall}</span>
                     </div>
